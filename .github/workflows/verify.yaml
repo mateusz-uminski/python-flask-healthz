@@ -1,0 +1,42 @@
+name: verify
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  PYTHON_VERSION: 3.11
+
+jobs:
+  envs:
+    runs-on: ubuntu-22.04
+    steps:
+      - run: exit 0
+    outputs:
+      PYTHON_VERSION: ${{ env.PYTHON_VERSION }}
+
+  lint:
+    needs: envs
+    uses: mateusz-uminski/github-actions/.github/workflows/python-lint.yaml@main
+    with:
+      python_version: ${{ needs.envs.outputs.PYTHON_VERSION }}
+      flake8_version: 7.1.1
+
+  tests:
+    needs: envs
+    uses: mateusz-uminski/github-actions/.github/workflows/python-tests.yaml@main
+    with:
+      python_version: ${{ needs.envs.outputs.PYTHON_VERSION }}
+      tests_dir: "tests/"
+
+  docker-build:
+    needs:
+      - lint
+      - tests
+    uses: mateusz-uminski/github-actions/.github/workflows/build-docker-image.yaml@main
+    with:
+      runner: ubuntu-22.04
+      path: "."
+      tag: latest

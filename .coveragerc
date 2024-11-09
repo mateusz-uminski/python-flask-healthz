@@ -1,0 +1,7 @@
+[coverage:run]
+branch = True
+source = app  # Specify the source directory for coverage
+
+[coverage:report]
+show_missing = True
+skip_covered = False
